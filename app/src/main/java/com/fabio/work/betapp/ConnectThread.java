@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import java.io.Console;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,10 @@ import java.util.UUID;
 public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
+    public enum LineType {
+        ALIGN_CENTER, ALIGN_LEFT, ALIGN_RIGHT, UNDERLINE,
+        DOTEDLINE, DASHEDLINE, BLANKLINE, ALIGN_JUSTIFY
+    }
 
     public ConnectThread(BluetoothDevice device) {
         // Use a temporary object that is later assigned to mmSocket,
@@ -54,108 +59,159 @@ public class ConnectThread extends Thread {
         try {
 
             tmpOut = mmSocket.getOutputStream();
-            String teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
             Jogo jogo = jogos.get(0);
 
-            teste = "                      " + jogo.FILIAL_DESC;
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha(jogo.FILIAL_DESC.toUpperCase(), LineType.ALIGN_CENTER));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
+            tmpOut.write(formataLinha("",LineType.UNDERLINE));
 
-            teste = "Autenticação: "+jogo.APOSTA_AUTENTICACAO+"\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Autenticação: ", jogo.APOSTA_AUTENTICACAO,LineType.ALIGN_JUSTIFY));
 
-            teste = "Apostador: "+ jogo.APOSTA_NOME_APOSTADOR;
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Apostador: ",  jogo.APOSTA_NOME_APOSTADOR,LineType.ALIGN_JUSTIFY));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Quantidade de Jogos: ", Integer.toString(jogos.size()) ,LineType.ALIGN_JUSTIFY));
 
-            teste = "Quantidade de Jogos: "+Integer.toString(jogos.size())+"\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Valor apostado: ", jogo.APOSTA_VALOR ,LineType.ALIGN_JUSTIFY));
 
-            teste = "Valor apostado: "+jogo.APOSTA_VALOR+"\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Retorno possivel: ", jogo.APOSTA_RETORNO_POSSIVEL ,LineType.ALIGN_JUSTIFY));
 
-            teste = "Retorno possivel: "+jogo.APOSTA_RETORNO_POSSIVEL+"\n";
-            tmpOut.write(teste.getBytes());
-
+            tmpOut.write(formataLinha("",LineType.UNDERLINE));
             for(int i = 0; i < jogos.size(); i++){
                 Jogo item = jogos.get(i);
-                teste = "\n\n";
-                tmpOut.write(teste.getBytes());
 
-                teste = item.CASA + " X " + item.FORA + "\n";
-                tmpOut.write(teste.getBytes());
+                tmpOut.write(formataLinha(item.CASA + " X " + item.FORA ,LineType.ALIGN_CENTER));
 
-                teste = item.DATA_HORA_FIM + "    " + item.TIPO_APOSTA + ":" + item.APOSTA_JOGO_TAXA;
-                tmpOut.write(teste.getBytes());
+                tmpOut.write(formataLinha(item.DATA_HORA_FIM + "    " + item.TIPO_APOSTA + ": " + item.APOSTA_JOGO_TAXA ,LineType.ALIGN_CENTER));
 
+                if((i+1 < jogos.size())){
+                    tmpOut.write(formataLinha("",LineType.DASHEDLINE));
+                }
             }
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
 
-            teste = jogo.APOSTA_DATA_HORA;
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.UNDERLINE));
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha(jogo.APOSTA_DATA_HORA ,LineType.ALIGN_CENTER));
 
-            teste = "* O prazo para pagamento é de sete dias";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("* O prazo para pagamento é de sete dias.",LineType.ALIGN_LEFT));
 
-            teste = "* O prêmio máximo por bilhere é 15.000,00";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = " (Quinze mil reais)";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("* O prêmio máximo por bilhere é 15.000,00",LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("(Quinze mil reais)",LineType.ALIGN_LEFT));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = "Regra 1 - Não seram pagos jogos já iniciados e por falha\n ";
-            tmpOut.write(teste.getBytes());
-            teste = "          continuem no sistema, sejá por erro de hora ou \n ";
-            tmpOut.write(teste.getBytes());
-            teste = "          por jogo antecipado.";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Regra 1 - Não seram pagos jogos já iniciados e",LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("por falha continuem no sistema, sejá por erro de",LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("hora ou por jogo antecipado.",LineType.ALIGN_LEFT));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = "Regra 2 - Não serão pagos jogos definidos após 90 minutos\n";
-            tmpOut.write(teste.getBytes());
-            teste = "          + acrescimos. Seja por prorrogação ou disputa de\n";
-            tmpOut.write(teste.getBytes());
-            teste = "          penaltis.";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Regra 2 - Não serão pagos jogos definidos após",LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("90 minutos + acrescimos. Seja por prorrogação ou",LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("disputa de penaltis.",LineType.ALIGN_LEFT));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
-            teste = "Regra 3 - Em caso de aposta com mais de um jogo(Casadinha)\n";
-            tmpOut.write(teste.getBytes());
-            teste = "          jogos que vialerem as regras 1 e 2 não serão pagos.";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("Regra 3 - Em caso de aposta com mais de um", LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("jogo(Casadinha) jogos que vialerem as regras 1 e", LineType.ALIGN_LEFT));
+            tmpOut.write(formataLinha("2 não serão pagos.", LineType.ALIGN_LEFT));
 
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
-
-            teste = "\n\n";
-            tmpOut.write(teste.getBytes());
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
+            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /** Will cancel an in-progress connection, and close the socket */
+
+    private byte[] formataLinha(String titulo, String valor, LineType lineType) {
+        String linha = null;
+        int tituloSize = titulo.length();
+        int valorSize = valor.length();
+        int size = 0;
+
+        switch (lineType) {
+            case ALIGN_CENTER:
+                break;
+            case ALIGN_LEFT:
+                break;
+            case ALIGN_RIGHT:
+                break;
+            case ALIGN_JUSTIFY:
+                linha = titulo;
+                for(size = 48 - (tituloSize + valorSize); size > 0; size--){
+                    linha += " ";
+                }
+                linha += valor;
+                break;
+        }
+
+        try {
+            return linha.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+    private byte[] formataLinha(String texto, LineType lineType) {
+        String linha = "";
+        int size;
+        switch (lineType) {
+            case ALIGN_CENTER:
+                size = texto.trim().length();
+                for (int i = (48 - size) / 2; i > 0; i--) {
+                    linha += " ";
+                }
+                linha += texto.trim();
+                linha += "\n";
+                break;
+            case ALIGN_LEFT:
+                linha = texto.trim();
+                size = texto.trim().length();
+                for (int i = 48 - size; i > 0; i--) {
+                    linha += " ";
+                }
+                linha += "\n";
+                break;
+            case ALIGN_RIGHT:
+                size = texto.trim().length();
+                for (int i = 48 - size; i > 0; i--) {
+                    linha += " ";
+                }
+                linha += texto.trim() + "\n";
+                break;
+            case UNDERLINE:
+                linha = "________________________________________________\n";
+                break;
+            case DOTEDLINE:
+                linha = "................................................\n";
+                break;
+            case DASHEDLINE:
+                linha = "------------------------------------------------\n";
+                break;
+            case BLANKLINE:
+                linha = "\n";
+                break;
+        }
+
+        try {
+            return linha.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
+        /** Will cancel an in-progress connection, and close the socket */
     public void cancel() {
         try {
             mmSocket.close();

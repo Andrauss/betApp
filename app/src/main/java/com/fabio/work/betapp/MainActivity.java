@@ -17,7 +17,8 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Jogo>>{
 
-    public static final String URL_BET = "http://bet24h.com.br/Bet24h/sistema/app_Login/";
+    //public static final String URL_BET = "http://bet24h.com.br/Bet24h/sistema/app_Login/";
+    public static final String URL_BET = "http://54.207.91.1:97/scriptcase/app/SPS_Sports/tablet_app_Login/index.php";
     public static final String ARGS_ID = "id";
     private List<Jogo> jogos = null;
     private LoaderManager mLoaderManager;
