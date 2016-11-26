@@ -17,9 +17,14 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Jogo>>{
 
-    //public static final String URL_BET = "http://bet24h.com.br/Bet24h/sistema/app_Login/";
     public static final String URL_BET = "http://54.207.91.1:97/scriptcase/app/SPS_Sports/tablet_app_Login/index.php";
+    //public static final String URL_BET = "http://54.232.202.183/Bet24h/sistema/tablet_app_Login/index.php";
     public static final String ARGS_ID = "id";
+    public enum PRINTER_DEVICE {
+        PD_DPP_350, PD_DPP_250
+    }
+
+    public static final PRINTER_DEVICE pd = PRINTER_DEVICE.PD_DPP_250;
     private List<Jogo> jogos = null;
     private LoaderManager mLoaderManager;
     BluetoothDevice dppPrint = null;
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<List<Jogo>> loader, List<Jogo> data) {
         jogos = data;
-        conectarImpressora(jogos);
+        conectarImpressora(jogos, pd);
     }
 
     @Override
@@ -69,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         jogos = null;
     }
 
-    public void conectarImpressora(List<Jogo> jogos){
+    public void conectarImpressora(List<Jogo> jogos, PRINTER_DEVICE pd){
 
         if(dppPrint == null){
 
@@ -91,10 +96,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 for(BluetoothDevice device : pairedDevices){
 
-                    if(device.getName().equals("DPP-350")){
+                    switch (pd){
+                        case PD_DPP_250:
+                            if(device.getName().equals("DPP-250")){
 
-                        dppPrint = device;
+                                dppPrint = device;
+                            }
+                        break;
+                        case PD_DPP_350:
+                            if(device.getName().equals("DPP-350")){
 
+                                dppPrint = device;
+                            }
+                        break;
                     }
                 }
             }
@@ -104,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Cancel discovery because it will slow down the connection
         bluetoothAdapter.cancelDiscovery();
 
-        ConnectThread connect = new ConnectThread(dppPrint);
+        ConnectThread connect = new ConnectThread(dppPrint, pd);
 
         connect.run(jogos);
 

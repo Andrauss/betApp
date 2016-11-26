@@ -20,21 +20,25 @@ public class Jogo implements Parcelable{
     String CASA;
     String FORA;
     String FILIAL_DESC;
+    String CAMBISTA_NOME;
+    String CAMBISTA_FONE;
 
     public Jogo(Parcel in){
         super();
         this.APOSTA_ID = in.readInt();
         this.APOSTA_AUTENTICACAO = in.readString();
-        this.APOSTA_DATA_HORA = in.readString();;
-        this.APOSTA_VALOR = in.readString();;
-        this.APOSTA_RETORNO_POSSIVEL = in.readString();;
-        this.APOSTA_NOME_APOSTADOR = in.readString();;
-        this.TIPO_APOSTA = in.readString();;
-        this.APOSTA_JOGO_TAXA = in.readString();;
-        this.DATA_HORA_FIM = in.readString();;
-        this.CASA = in.readString();;
-        this.FORA = in.readString();;
-        ;
+        this.APOSTA_DATA_HORA = in.readString();
+        this.APOSTA_VALOR = in.readString();
+        this.APOSTA_RETORNO_POSSIVEL = in.readString();
+        this.APOSTA_NOME_APOSTADOR = in.readString();
+        this.TIPO_APOSTA = in.readString();
+        this.APOSTA_JOGO_TAXA = in.readString();
+        this.DATA_HORA_FIM = in.readString();
+        this.CASA = in.readString();
+        this.FORA = in.readString();
+        this.CAMBISTA_NOME = in.readString();
+        this.CAMBISTA_FONE = in.readString();
+
     }
 
     public static final Creator<Jogo> CREATOR = new Creator<Jogo>() {
@@ -64,7 +68,9 @@ public class Jogo implements Parcelable{
                 ",DATA_HORA_FIM="+ DATA_HORA_FIM +
                 ",CASA="+ CASA +
                 ",FORA="+ FORA +
-                ",FILIAL_DESC="+ FILIAL_DESC + "]";
+                ",FILIAL_DESC="+ FILIAL_DESC +
+                ",CAMBISTA_NOME" + CAMBISTA_NOME  +
+                ",CAMBISTA_FONE" + CAMBISTA_FONE + "]";
 
     }
 
@@ -87,6 +93,8 @@ public class Jogo implements Parcelable{
         dest.writeString(CASA);
         dest.writeString(FORA);
         dest.writeString(FILIAL_DESC);
+        dest.writeString(CAMBISTA_NOME);
+        dest.writeString(CAMBISTA_FONE);
     }
 
 }

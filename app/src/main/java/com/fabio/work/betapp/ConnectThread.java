@@ -2,6 +2,7 @@ package com.fabio.work.betapp;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import java.io.Console;
 import java.io.IOException;
@@ -21,7 +22,11 @@ public class ConnectThread extends Thread {
         DOTEDLINE, DASHEDLINE, BLANKLINE, ALIGN_JUSTIFY
     }
 
-    public ConnectThread(BluetoothDevice device) {
+    private int colNum = 0;
+
+
+
+    public ConnectThread(BluetoothDevice device, MainActivity.PRINTER_DEVICE pd) {
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         BluetoothSocket tmp = null;
@@ -34,6 +39,16 @@ public class ConnectThread extends Thread {
 
         } catch (IOException e) { }
         mmSocket = tmp;
+
+        switch (pd) {
+            case PD_DPP_350:
+                this.colNum = 48;
+                break;
+            case PD_DPP_250:
+                this.colNum = 32;
+                break;
+        }
+
 
     }
 
@@ -60,74 +75,129 @@ public class ConnectThread extends Thread {
 
             tmpOut = mmSocket.getOutputStream();
 
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
             Jogo jogo = jogos.get(0);
+            if(this.colNum == 32){
 
-            tmpOut.write(formataLinha(jogo.FILIAL_DESC.toUpperCase(), LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("______________________________", LineType.ALIGN_CENTER));
 
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-            tmpOut.write(formataLinha("",LineType.UNDERLINE));
+                jogo = jogos.get(0);
 
-            tmpOut.write(formataLinha("Autenticação: ", jogo.APOSTA_AUTENTICACAO,LineType.ALIGN_JUSTIFY));
+                tmpOut.write(formataLinha("PREMIER BET", LineType.ALIGN_CENTER));
 
-            tmpOut.write(formataLinha("Apostador: ",  jogo.APOSTA_NOME_APOSTADOR,LineType.ALIGN_JUSTIFY));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("______________________________", LineType.ALIGN_CENTER));
 
-            tmpOut.write(formataLinha("Quantidade de Jogos: ", Integer.toString(jogos.size()) ,LineType.ALIGN_JUSTIFY));
+                tmpOut.write(formataLinha("Cambista: ", jogo.CAMBISTA_NOME,LineType.ALIGN_JUSTIFY));
 
-            tmpOut.write(formataLinha("Valor apostado: ", jogo.APOSTA_VALOR ,LineType.ALIGN_JUSTIFY));
-
-            tmpOut.write(formataLinha("Retorno possivel: ", jogo.APOSTA_RETORNO_POSSIVEL ,LineType.ALIGN_JUSTIFY));
-
-            tmpOut.write(formataLinha("",LineType.UNDERLINE));
-            for(int i = 0; i < jogos.size(); i++){
-                Jogo item = jogos.get(i);
-
-                tmpOut.write(formataLinha(item.CASA + " X " + item.FORA ,LineType.ALIGN_CENTER));
-
-                tmpOut.write(formataLinha(item.DATA_HORA_FIM + "    " + item.TIPO_APOSTA + ": " + item.APOSTA_JOGO_TAXA ,LineType.ALIGN_CENTER));
-
-                if((i+1 < jogos.size())){
-                    tmpOut.write(formataLinha("",LineType.DASHEDLINE));
+                if(!jogo.CAMBISTA_FONE.trim().equals("")){
+                    tmpOut.write(formataLinha("Cambista Fone: ", jogo.CAMBISTA_FONE,LineType.ALIGN_JUSTIFY));
                 }
+                tmpOut.write(formataLinha("Autenticação: ", jogo.APOSTA_AUTENTICACAO,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Apostador: ",  jogo.APOSTA_NOME_APOSTADOR,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Quantidade de Jogos: ", Integer.toString(jogos.size()) ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Valor apostado: ", jogo.APOSTA_VALOR ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Retorno possivel: ", jogo.APOSTA_RETORNO_POSSIVEL ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("______________________________", LineType.ALIGN_CENTER));
+                for(int i = 0; i < jogos.size(); i++){
+                    Jogo item = jogos.get(i);
+
+                    tmpOut.write(formataLinha(item.CASA + " X " + item.FORA ,LineType.ALIGN_CENTER));
+
+                    tmpOut.write(formataLinha(item.DATA_HORA_FIM.substring(0,16), item.TIPO_APOSTA + ": " + item.APOSTA_JOGO_TAXA ,LineType.ALIGN_JUSTIFY));
+
+                    if((i+1 < jogos.size())){
+                        tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                    }
+                }
+
+                tmpOut.write(formataLinha("______________________________", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha(jogo.APOSTA_DATA_HORA ,LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("Prêmios acima de 3.000,00 pagamento  em até 48h.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("Resultado válido dos 90minutos jogados, não será considerado prorrogação nem disputa por pênaltis.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("Limite de prêmios 30.000,00.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+                tmpOut.write(formataLinha("                              ", LineType.ALIGN_CENTER));
+            }else { // DPP-350
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+
+                jogo = jogos.get(0);
+
+                tmpOut.write(formataLinha("PREMIER BET", LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+                tmpOut.write(formataLinha("",LineType.UNDERLINE));
+
+                tmpOut.write(formataLinha("Cambista: ", jogo.CAMBISTA_NOME,LineType.ALIGN_JUSTIFY));
+
+                if(!jogo.CAMBISTA_FONE.trim().equals("")){
+                    tmpOut.write(formataLinha("Cambista Fone: ", jogo.CAMBISTA_FONE,LineType.ALIGN_JUSTIFY));
+                }
+                tmpOut.write(formataLinha("Autenticação: ", jogo.APOSTA_AUTENTICACAO,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Apostador: ",  jogo.APOSTA_NOME_APOSTADOR,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Quantidade de Jogos: ", Integer.toString(jogos.size()) ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Valor apostado: ", jogo.APOSTA_VALOR ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("Retorno possivel: ", jogo.APOSTA_RETORNO_POSSIVEL ,LineType.ALIGN_JUSTIFY));
+
+                tmpOut.write(formataLinha("",LineType.UNDERLINE));
+                for(int i = 0; i < jogos.size(); i++){
+                    Jogo item = jogos.get(i);
+
+                    tmpOut.write(formataLinha(item.CASA + " X " + item.FORA ,LineType.ALIGN_CENTER));
+
+                    tmpOut.write(formataLinha(item.DATA_HORA_FIM.substring(0,16), item.TIPO_APOSTA + ": " + item.APOSTA_JOGO_TAXA ,LineType.ALIGN_JUSTIFY));
+
+                    if((i+1 < jogos.size())){
+                        tmpOut.write(formataLinha("",LineType.DASHEDLINE));
+                    }
+                }
+
+                tmpOut.write(formataLinha("",LineType.UNDERLINE));
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+
+                tmpOut.write(formataLinha(jogo.APOSTA_DATA_HORA ,LineType.ALIGN_CENTER));
+
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+
+                tmpOut.write(formataLinha("Prêmios acima de 3.000,00 pagamento  em até 48h.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("", LineType.BLANKLINE));
+
+                tmpOut.write(formataLinha("Resultado válido dos 90minutos jogados, não será considerado prorrogação nem disputa por pênaltis.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("", LineType.BLANKLINE));
+
+                tmpOut.write(formataLinha("Limite de prêmios 30.000,00.", LineType.ALIGN_LEFT));
+
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+                tmpOut.write(formataLinha("",LineType.BLANKLINE));
+
             }
-
-            tmpOut.write(formataLinha("",LineType.UNDERLINE));
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha(jogo.APOSTA_DATA_HORA ,LineType.ALIGN_CENTER));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha("* O prazo para pagamento é de sete dias.",LineType.ALIGN_LEFT));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha("* O prêmio máximo por bilhere é 15.000,00",LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("(Quinze mil reais)",LineType.ALIGN_LEFT));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha("Regra 1 - Não seram pagos jogos já iniciados e",LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("por falha continuem no sistema, sejá por erro de",LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("hora ou por jogo antecipado.",LineType.ALIGN_LEFT));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha("Regra 2 - Não serão pagos jogos definidos após",LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("90 minutos + acrescimos. Seja por prorrogação ou",LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("disputa de penaltis.",LineType.ALIGN_LEFT));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-
-            tmpOut.write(formataLinha("Regra 3 - Em caso de aposta com mais de um", LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("jogo(Casadinha) jogos que vialerem as regras 1 e", LineType.ALIGN_LEFT));
-            tmpOut.write(formataLinha("2 não serão pagos.", LineType.ALIGN_LEFT));
-
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
-            tmpOut.write(formataLinha("",LineType.BLANKLINE));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,7 +220,7 @@ public class ConnectThread extends Thread {
                 break;
             case ALIGN_JUSTIFY:
                 linha = titulo;
-                for(size = 48 - (tituloSize + valorSize); size > 0; size--){
+                for(size = this.colNum - (tituloSize + valorSize); size > 0; size--){
                     linha += " ";
                 }
                 linha += valor;
@@ -169,7 +239,7 @@ public class ConnectThread extends Thread {
         switch (lineType) {
             case ALIGN_CENTER:
                 size = texto.trim().length();
-                for (int i = (48 - size) / 2; i > 0; i--) {
+                for (int i = (this.colNum - size) / 2; i > 0; i--) {
                     linha += " ";
                 }
                 linha += texto.trim();
@@ -178,14 +248,14 @@ public class ConnectThread extends Thread {
             case ALIGN_LEFT:
                 linha = texto.trim();
                 size = texto.trim().length();
-                for (int i = 48 - size; i > 0; i--) {
+                for (int i = this.colNum - size; i > 0; i--) {
                     linha += " ";
                 }
                 linha += "\n";
                 break;
             case ALIGN_RIGHT:
                 size = texto.trim().length();
-                for (int i = 48 - size; i > 0; i--) {
+                for (int i = this.colNum - size; i > 0; i--) {
                     linha += " ";
                 }
                 linha += texto.trim() + "\n";
